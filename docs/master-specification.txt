@@ -1,0 +1,373 @@
+CODEX MASTER PROMPT
+Punjab Sports Mart — AI-Powered Retail Operations Copilot
+Stack: Next.js + JavaScript + Express + MongoDB + Python/FastAPI + Firebase + Groq/Llama + Pinecone
+Deployment: Docker Compose on a Linux VPS
+
+ROLE AND WORK STYLE
+Act as a senior full-stack engineer, AI/RAG engineer, security engineer, UX engineer, QA engineer, and DevOps engineer. Work inside the currently opened Codex workspace. Inspect the actual hackathon source files before making assumptions, then implement the working product, run available checks, fix failures, and document exactly what did and did not work.
+
+Do not stop after a plan, architecture diagram, or scaffolding. Build a working end-to-end vertical slice first, then complete the rest. Do not create fake AI results, fake analytics, fake success states, dead buttons, or empty pages that only look implemented. Do not invent credentials, source-data rows, business rules, evaluation results, or claims about successful tests/deployment.
+
+1. FIRST: INSPECT THE REAL SOURCE FILES
+Locate and read the actual files supplied for Use Case 3, including (names may be nested or vary in case):
+- Participant_Guide.md
+- all documents in knowledge_base/
+- all CSV files in data/
+- evaluation/public_test_cases.csv
+- evaluation/predictions_schema.csv
+
+Inspect every CSV header, relevant data types, categories/labels, date fields, relationships and missing values before coding analytics. Read the guide for exact issue categories, P1–P4 meanings, escalation rules, approval matrix, expected outputs, and evaluation metrics. Treat those source files as authoritative. Do not assume a column exists because it seems likely. If the guide conflicts with this prompt, follow the guide and document the discrepancy.
+
+Preserve the original source files byte-for-byte. Never overwrite the original CSVs, policy files, public test cases, or schema. Put uploaded/revised versions, generated predictions, reports, indexes/metadata and other generated artifacts in separate versioned locations. Use the attached UI screenshots and workflow diagram in the conversation as design references if Codex can access them. If not available in the workspace, implement the screen descriptions below rather than blocking on the images.
+
+2. REQUIRED ARCHITECTURE AND LANGUAGE CHOICES
+Use JavaScript throughout the web tier and do not switch to TypeScript.
+
+Frontend/web application:
+- Next.js App Router, JavaScript (JS/JSX, not TypeScript).
+- Tailwind CSS.
+- Responsive, accessible, polished application with reusable components and clear loading, empty, validation, error, offline and permission-denied states.
+- Use server components where useful, client components for interactions, and appropriate API boundaries. Do not expose server-side secrets to client components.
+- Avoid unnecessary UI frameworks. If an additional component library is used, keep it consistent and document it.
+
+Node backend:
+- Node.js + Express + JavaScript.
+- MongoDB + Mongoose for application records and audit metadata.
+- Firebase Authentication for login and identity; Firebase Admin SDK verifies ID tokens server-side.
+- The browser calls the Express API. Next.js is the web UI; Express is the main application API and authorization boundary.
+- A Next.js route handler may be used only for an appropriate web concern; do not duplicate business logic across Next.js and Express.
+
+Python AI service:
+- Python + FastAPI + Pydantic + pandas.
+- Provides triage/analysis orchestration, RAG, approved read-only CSV analysis tools, structured recommendations, validation and evaluation.
+- Node/Express calls the Python service over a private Docker network. Protect the internal service with a service-to-service secret or equivalent control, validate request schemas, and do not expose it publicly by default.
+
+Data stores/services:
+- MongoDB for users/profiles, roles, incidents/cases, CSV upload versions/status, and safe audit metadata.
+- Pinecone for knowledge-base vector search.
+- Firebase Authentication for Email/Password and Google Sign-In.
+- Groq-hosted Llama 3.3 for LLM classification and generation, configured through environment variables.
+- Embedding adapter must be configurable. The exact embedding provider/model has not been specified; do not silently choose one as though the user selected it.
+- Docker Compose deployment on a Linux VPS.
+
+Use a small, maintainable architecture. Do not use LangGraph or another orchestration framework; implement simple, explicit Python orchestration.
+
+3. REQUIRED USER ROLES AND AUTHENTICATION
+Create an authentication experience with exactly these product roles unless the actual participant guide requires a different mapping:
+- Employee
+- Manager
+
+Use Firebase Authentication with BOTH:
+- Email/password sign-up and sign-in.
+- Google Sign-In.
+
+Important security requirements:
+- A user cannot select “Manager” during public registration and thereby obtain manager permissions. Registration creates an Employee profile by default.
+- Manager role assignments must be done through a documented secure bootstrap/admin procedure or an existing trusted server-side record/custom claim. Never trust a role sent by the frontend.
+- Verify Firebase ID tokens in Express middleware using Firebase Admin SDK.
+- Use deny-by-default access control, with permission enforcement on every server route and resource. Hiding a link in the UI is not security.
+- Employees may submit incidents, ask operational questions, see permitted incident history, and browse knowledge-base policies according to the guide.
+- Managers may also access the CSV Data Update page and manager-only operations. Restrict uploads, activation, rollback and upload history in the backend, not just the UI.
+- Define case visibility and store scoping based on actual guide requirements and available source fields. If the guide does not define store-level permissions, implement conservative role checks and document the scope instead of inventing a complex organization hierarchy.
+- Implement login, logout, loading/session restoration, protected routes and useful auth error messages.
+- Configure Firebase client settings with public client environment variables only. Firebase Admin credentials must remain server-side and must never be committed.
+- Provide instructions for enabling Email/Password and Google providers, authorized domains, and bootstrapping the first Manager safely.
+- Do not bypass authentication in production. Any test-only bypass must be explicitly gated, disabled by default, and refused in production.
+- Test unauthenticated calls, employee attempts to access manager endpoints, manager access, invalid/expired tokens and attempts to self-promote.
+
+4. REQUIRED UI PAGES AND NAVIGATION
+Use the supplied visual references as the style direction: polished white/light content surfaces, a dark navy sidebar for the authenticated application, purple primary actions, clear category/priority badges, restrained shadows, good spacing and readable data tables. Avoid copying blurry text or treating example data in screenshots as real production facts. Use accessible contrast and responsive layout.
+
+A. Landing page / Overview
+- Punjab Sports Mart branding and a concise “Retail Operations Copilot” explanation.
+- Feature highlights: policy answers with sources; incident triage and priority; store data analysis; escalation guidance.
+- “Get Started” leads to authentication.
+- Do not imply real-time integrations exist unless implemented.
+
+B. Authentication
+- Employee and Manager role concepts clearly explained.
+- Login/register using Email/Password and Google.
+- Do not allow unauthorised self-selection of Manager privileges. If a role chooser is displayed, it must be explanatory only, and actual permissions must come from trusted backend data.
+- Responsive, accessible error and loading states.
+
+C. Dashboard
+- Real counts from MongoDB and allowed CSV analytics, such as open cases and priority/category distribution, based on data actually available.
+- Quick actions for New Incident, Knowledge Base and Analytics.
+- Do not show fabricated chart values or hard-coded “success” metrics. Clearly label any example/seed data if used, and keep it separated from supplied source data.
+
+D. New Incident / Query page — chat-like interface based on the screenshot
+- Main heading similar to “New Incident” and helper text explaining that staff can describe a store issue in natural language.
+- Conversational input and readable conversation history; clear loading and cancellation/retry behavior where feasible.
+- Submit an incident such as a POS card-reader outage, inventory mismatch, vendor short shipment, returns question, or price mismatch, but use examples from the actual supplied guide/data where possible.
+- Show the actual response fields: analysis status, category, priority, confidence only if the model's confidence is meaningful and defined, escalation state, recommended actions, policy references/snippets, CSV findings, and limitations.
+- Render citations as real links or source panels with filename, section/page if available, and relevant excerpt.
+- Include follow-up questions. Follow-up answers must reuse the context/evidence safely and must not bypass safety rules.
+- “Clear Chat” clears the conversation view only after confirmation if it would discard unsaved content. It must not delete persisted incidents.
+- Clearly distinguish a suggested action from a completed action. Case/ticket creation must persist a record.
+
+E. Knowledge Base
+- Search/browse the actual policy documents, with category filters based on real metadata/categories.
+- Show document title, source filename, short genuine description derived from the document, and updated/version metadata only if present or generated through a documented ingestion record.
+- Document detail should let an authorised user inspect allowed text/sections. Do not fabricate dates, policy titles, or snippets.
+- Indexing/ingestion must be repeatable and idempotent.
+- If full-text browsing of source documents is served from the backend, protect access as required and sanitise display output.
+
+F. Analytics
+- Analyze supplied CSVs through approved Python/pandas functions and show results based on the actual data.
+- Include a modest set of useful filters and charts/tables that can be verified against source rows.
+- Show data source names, filters applied, last activated data version if available, and caveats.
+- Do not allow the LLM to invent numeric results when a deterministic tool result exists.
+
+G. Escalations
+- List cases that require escalation according to guide-defined priority, safety/security rules, low confidence threshold if specified, restricted data requests, approval requirements and other actual guide rules.
+- Show escalation reason, priority, assigned team/owner or SLA only where source rules support it, and current status.
+- Any ticket generated here is an internal application record unless an external ticketing integration is actually implemented and tested.
+
+H. History / Incidents
+- Search/filter incident history by status, category, priority and permitted attributes.
+- Detail page shows original request subject to safe masking, analysis, citations, recommendations, status and audit timestamps.
+- Enforce record-level authorization on the backend.
+
+I. Manager-only CSV Data Update page — required
+Create a clearly titled manager-only “CSV Data Update” or “Data Management” page for uploading/updating the CSV files that power analytics. It must be functional, not a decorative upload button.
+- Restrict page and every related API endpoint to Manager role verified by the backend.
+- Provide drag/drop and file picker upload for `.csv` files, upload progress, understandable errors and a clear confirmation step.
+- Inspect actual supplied CSV filenames and schemas first. Define an allowlist of datasets based on those real files. Do not permit arbitrary path names, directory traversal, executable files, oversized uploads or arbitrary replacement of unrelated files.
+- Before activation, validate file encoding, size/row limits, delimiter, header/schema compatibility, required columns, data types, date formats, and required fields using the actual schema. Detect empty files and malformed rows. Report validation errors by column/row in a safe, understandable way.
+- Show a preview of the uploaded data and a comparison with the active version (row counts, columns, schema differences and a small diff/summary where feasible) before manager confirms activation.
+- Do not replace the active dataset when validation fails. Stage uploads separately, then activate them atomically only after validation and explicit manager confirmation.
+- Preserve original supplied CSVs and every previous upload version. Version uploads with a unique ID, dataset name, uploader UID, timestamp, checksum/content hash, validation status and activation status. Keep audit history.
+- Offer a documented rollback to a prior valid version; enforce Manager permissions and audit it. Do not delete source or historical versions during rollback.
+- Ensure the Python analytics service reads only the currently active validated version. Prevent partial reads during activation (use atomic pointer/manifest or equivalent safe version selection).
+- Do not execute spreadsheet formulas or interpret cell contents as commands. Mitigate CSV formula injection when rendering/downloading values; escape dangerous values on export where appropriate.
+- Protect uploads against resource exhaustion and malicious content. Enforce limits and rate limits. Use safe generated storage names rather than trusting the uploaded path/filename.
+- If the data participates in generated caches or indexes, invalidate/rebuild the affected artefacts safely. CSV analytics data is not automatically Pinecone knowledge-base content; do not embed CSVs unless the actual use case requires it.
+- Employee users must receive a clear permission-denied result when attempting direct API access to these operations.
+- Include validation, authorization, activation, rollback, version history and failed-upload tests.
+- Clearly explain in the UI and README that CSV update changes this application's active analysis dataset; it does not update a live POS, ERP, inventory management system or external vendor system.
+
+5. AI PIPELINE AND WORKFLOW
+Follow the user-provided workflow diagram where consistent with the actual participant guide. Implement these separate stages/modules with simple Python orchestration and structured inputs/outputs:
+1. **Pre-safety gate:** validate input length/format, detect likely prompt injection as a supplemental warning, identify sensitive data and mask/redact it where appropriate. Keyword rules alone are not a sufficient security boundary.
+2. **Triage Agent (LLM):** classify category, assess priority and explain rationale using the guide; identify evidence/tool needs; return schema-valid JSON.
+3. **Retrieval module/agent:** retrieve relevant policy chunks from Pinecone and return real citations and relevance metadata.
+4. **Data module/agent:** execute only predefined safe read-only pandas analysis functions over the active validated CSV versions.
+5. **Workflow/decision module:** deterministic rules map priority/category/safety and guide-defined approval/escalation conditions to next-step routing, escalation reason, and team/SLA only if supported by source data.
+6. **Answer Writer / Evidence & Resolution Agent (LLM):** synthesize only retrieved policy evidence and validated tool outputs into recommended next steps, explaining any uncertainty.
+7. **Final safety gate:** validate output schema, verify citations against retrieved sources, check sensitive-data leakage, reject unsupported claims and unsafe instructions, and mask sensitive values again where appropriate.
+8. **Response/persistence:** return structured JSON to the UI; save an incident/case and safe audit metadata when the user submits an incident or explicitly chooses to create one.
+
+This preserves a simple orchestrator: the two core LLM roles are Triage Agent and Answer Writer; retrieval, CSV analytics, workflow policy and safety gates can be deterministic tools/modules. Do not pretend each module is an autonomous LLM agent. Document the sequence and fallback behavior.
+
+Mandatory behavioral requirements:
+- Follow actual categories, priority meanings and escalations in the participant guide.
+- The LLM does not have the authority to override backend permission checks, safety rules, required escalations, or deterministic outputs.
+- Explicit safety/security incidents and guide-defined critical cases must follow the required escalation path.
+- If the supplied diagram says to escalate when P1, confidence below 0.60, restricted data is requested, or approval is needed, implement those conditions unless the participant guide defines different thresholds/rules; explain any discrepancy. Treat model confidence carefully: if it is not calibrated, call it an estimate rather than a probability.
+- Avoid applying a generic P1 rule to everything merely because a service is unavailable. Use guide definitions and incident context.
+- When evidence is missing, contradictory, stale or irrelevant, abstain or ask a clarifying question instead of fabricating a policy answer.
+- Policy citations must refer to retrieved, existing source text. Never generate filenames/sections from memory.
+- Retrieved documents and user text are untrusted content and must never override the system/developer policy or authorize tools/actions.
+- Numeric claims must come from deterministic analysis results wherever available.
+- Provide safe, useful failure messages if Groq, Pinecone, MongoDB or Python service is unavailable; do not return fake success.
+- Keep human approval for consequential actions. The product recommends and records internal cases; it does not conduct real business transactions.
+
+6. GROQ / LLAMA CONFIGURATION
+- Configure Groq through server-only environment variables such as `GROQ_API_KEY` and `GROQ_MODEL`.
+- Use a clearly marked dummy placeholder in `.env.example`, e.g. `REPLACE_WITH_SUPPORTED_GROQ_LLAMA_3_3_MODEL_ID`. Add a comment telling the user to replace it with the exact model ID currently available in their Groq account; explicitly say the placeholder will not necessarily work.
+- Do not hard-code model names into the code. Read model configuration from environment.
+- Use the current supported Groq SDK/API and verify actual request options rather than guessing parameter names.
+- Set request timeouts, bounded retry/backoff for transient failures, limits on input/output size, and sanitized errors. Do not retry indefinitely.
+- The application must report “AI service not configured/unavailable” when no valid credential/model is configured. Do not quietly substitute canned sample answers while presenting them as live AI.
+
+7. EMBEDDINGS AND PINECONE
+The embedding provider/model has not been chosen. Implement an adapter/configuration contract without claiming one has been selected. Support a documented provider suitable for an embeddings API (use configurable base URL, model, API key and API-compatible request format) and optionally a local sentence-transformers adapter if it is reasonable for deployment. State the tradeoffs. Do not require the user to tell you the provider before implementing the rest of the system.
+- Environment variables must make provider/model and credentials explicit, e.g. `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL`, and provider-specific base URL/key as needed.
+- Same exact model/version and preprocessing must be used for ingestion and query embeddings.
+- Do not invent an API key or claim an external provider is configured.
+- Make Pinecone index settings configurable: API key, index name, cloud/region where applicable, metric, dimension.
+- Determine embedding dimension from a real model/provider response or documented model contract; validate it. Do not assume the dimension for an unspecified model.
+- On startup/ingestion, check configured index dimension against the embedding vector dimension. Fail with an actionable error if they mismatch. Do not silently truncate vectors, pad vectors or change models.
+- If supported by the installed Pinecone SDK, create the index from environment configuration when absent and wait for readiness before upserting. If it cannot safely do that, provide a documented setup command. Do not say an index was created unless verified.
+- Ingest actual policy files idempotently. Chunk with structure-aware splitting where possible and configurable chunk size/overlap, retaining source filename, section/heading/page when available, source content hash, chunk ID and version metadata.
+- Use deterministic/stable vector IDs and handle old chunks safely so stale versions do not coexist as active policies.
+- Retrieval must return source metadata. Configure top-k and optional similarity threshold. Tune thresholds empirically instead of treating a universal score as correct.
+- Provide an ingestion command, for example `python -m app.ingest`, and document initial ingest/re-ingest, index recreation and failure recovery.
+
+8. CSV ANALYTICS
+- Use pandas with the actual provided CSV schemas. Build finite, typed, read-only analysis functions for question types supported by the guide and public test cases.
+- Allowed operations should be implemented as named functions with validated arguments (for example, aggregate inventory by an existing store/SKU field, inspect receipt/short-shipment data, summarize returns/status, or compare prices only if the actual files support those questions). These are examples, not assumptions about the schema.
+- Never evaluate LLM-generated Python, shell commands, SQL, arbitrary pandas expressions or file paths.
+- Validate dates, filters, types and enum values; handle missing/duplicate/invalid rows and empty result sets.
+- Return structured outputs with actual values, filters, source file/version, row counts and caveats. Trace outputs back to the data version.
+- If an analysis cannot be answered from available columns, explain that it is unsupported rather than guessing.
+- Write unit tests for representative calculations and edge cases. Original files remain untouched.
+
+9. MONGODB CASES AND API CONTRACT
+Build appropriate Mongoose models for user profile/role (where needed), cases/incidents, CSV upload versions, and safe audit events. Use indexes for common search/filter/time fields. Do not store unnecessary PII or large duplicated policy documents.
+Provide versioned and documented endpoints for:
+- health and readiness;
+- current user/profile;
+- submit/analyze incident;
+- create/list/get/update permitted case fields/status;
+- dashboard and analytics;
+- knowledge-base search and policy details as supported;
+- manager-only CSV upload, validation preview, activation, version listing and rollback;
+- escalation list/status management according to roles/guide.
+- Evaluation endpoints only if access-controlled and necessary.
+
+Validate every route body/query/parameter. Apply Firebase auth and role/resource-level authorization on every protected endpoint. Use consistent error responses, request IDs and safe logs. Publish FastAPI OpenAPI documentation and document Express endpoints. Do not expose the Python AI service publicly by default.
+
+10. SAFETY, PRIVACY AND SECURITY
+Implement defense in depth:
+- input schema/length/file-size validation, rate limits and timeouts;
+- Firebase token verification plus backend role checks;
+- least privilege and deny-by-default access;
+- secrets only in runtime environment/secret storage;
+- sanitize/redact sensitive values in responses/logs as appropriate, avoid storing full sensitive prompts unnecessarily;
+- treat user prompts and retrieved content as untrusted data;
+- prompt-injection defenses do not replace backend authorization and tool allowlists;
+- no arbitrary file reads, code execution, shell commands or unrestricted tools;
+- sanitize/render user and retrieved text safely; never render untrusted HTML directly;
+- secure headers, restrictive CORS, private internal service networking and safe error responses;
+- audit only necessary metadata such as timestamp, UID, trace ID, case ID, chosen category/priority, source IDs, approved tool names, decision reason, latency and error code. Do not log credentials, auth tokens or sensitive raw prompts;
+- re-mask PII at final output;
+- validate that each citation's source ID exists in the retrieved context and that the presented citation metadata matches the source;
+- test prompt injection, request for restricted information, employee calling manager endpoints, malicious CSVs, path traversal, formula injection, malformed model output, insufficient evidence, service outage and attempted role escalation.
+
+Do not claim a final LLM check guarantees no leakage or hallucination. Document residual risks and need for human oversight.
+
+11. MANAGER DATA-UPDATE SECURITY AND CONSISTENCY
+CSV uploads can affect analytical results, so implement safe version switching:
+- Maintain immutable original source directory separately from user uploads.
+- Use a separate controlled upload root with generated filenames and no client-controlled path.
+- Only the manager role can upload, validate, activate or rollback. Re-check authorization in Express and any Python action accepting a dataset/version parameter.
+- Use staging → validation → preview → manager confirmation → atomic activation. Never activate a failed validation result.
+- Validate schema and relationships where needed against actual source files. Provide useful error reports but avoid exposing internal paths or other restricted rows.
+- Track checksum, original display name (sanitised), dataset key, version, uploader, timestamps, validation report and active status.
+- Avoid partial reads by having analytics resolve an active-version manifest or equivalent atomic pointer.
+- Make rollback re-point to a prior valid version rather than destroying data.
+- On restart, active versions must remain correct and data should not silently revert to original files.
+- Document retention/backup behavior and prevent concurrent activation races.
+
+12. DEPLOYMENT: DOCKER COMPOSE ON VPS
+Provide a production-oriented Docker Compose configuration for a Linux VPS containing:
+- Next.js production application;
+- Express API;
+- Python/FastAPI service;
+- MongoDB service with persistent volume and internal-only port, or documented use of managed MongoDB;
+- reverse proxy (Caddy or Nginx) routing frontend/API and supporting HTTPS.
+Include:
+- multi-stage production Dockerfiles where appropriate, `.dockerignore`, `.gitignore`, health checks, restart policies, persistent storage for required data, resource-conscious settings and logs to stdout/stderr;
+- separate private Docker network for internal services;
+- secrets supplied at runtime, never baked into images or copied into Git;
+- proper service health checks and startup retry behavior; do not assume Compose `depends_on` alone means a dependency is ready;
+- production environment settings, exact origins, Firebase authorised domains, and trusted proxy/security settings;
+- HTTPS/domain instructions and only required firewall ports exposed (usually HTTP/HTTPS and restricted SSH; never expose MongoDB or internal Python service to the public internet);
+- MongoDB backup/restore steps; Pinecone remains an external service.
+Provide commands for local setup, tests, ingestion, `docker compose config`, build/start, logs and health verification. Do not claim the VPS has been deployed unless a real deployment was performed and verified.
+
+13. ENVIRONMENT FILES AND SECRETS
+Create well-commented `.env.example` file(s), and ensure real `.env` files are ignored by Git. Do not include working secrets. Include placeholders for:
+- `NODE_ENV`, web URL/port, Express API URL/port, Python service URL/port;
+- public Firebase client config needed by the browser;
+- Firebase Admin credential method/path or application-default credentials;
+- MongoDB URI/database;
+- internal Node-to-Python service secret;
+- `GROQ_API_KEY` and `GROQ_MODEL` placeholder described in section 6;
+- embedding provider/model and provider-specific API base/key settings;
+- Pinecone key, index name, cloud/region/metric/dimension where required;
+- source knowledge-base directory, original CSV directory and separate upload/version directory;
+- retrieval top-k and optional calibrated threshold;
+- upload size/row limits, allowed origins, request timeouts and retry count.
+Never place Groq/Pinecone/API secrets in Next.js `NEXT_PUBLIC_*` variables. Only intended public Firebase client configuration belongs in browser-visible variables. Validate required configuration at startup and print names of missing variables, never their values.
+
+14. EVALUATION AND TESTING
+First inspect `evaluation/public_test_cases.csv` and `evaluation/predictions_schema.csv`. Honor actual columns, category/priority labels, safety cases and schema. Save generated predictions/report in a separate output directory, never overwrite evaluation inputs.
+Implement:
+- unit tests for priority/escalation rules, output validation, chunking/source metadata, CSV analytics, version activation/rollback and authorization helpers;
+- integration tests for Express ↔ Python request/response contracts;
+- API auth/role tests (including employee denied on manager data endpoints);
+- safety tests for injection, PII, restricted requests, insufficient evidence and service failures;
+- frontend lint/build/checks and an end-to-end smoke path where the environment permits;
+- Docker Compose configuration validation;
+- RAG ingestion/index dimension validation when credentials are available;
+- an evaluation runner that processes supplied public cases and writes predictions matching the provided schema exactly;
+- metrics computed from actual outputs: category accuracy, priority accuracy, citation presence/correctness where measurable, safety pass rate on the actual safety subset, deterministic CSV answer correctness and latency as supported by the evaluation data.
+The participant guide's stated targets (if present) are targets, not results. Do not hard-code metric values, skip failed cases silently, or present mock/external-service tests as proof of live integration. Report exact sample size, skipped cases, exceptions, and commands. If credentials are absent, run offline/unit tests possible and state what requires live services.
+
+15. RECOMMENDED PROJECT LAYOUT
+Use a clean structure similar to this, adapting as needed after inspecting the repository:
+- `web/` — Next.js App Router JavaScript UI
+- `api/` — Express JavaScript API, Firebase Admin auth, Mongoose models and role middleware
+- `ai-service/` — FastAPI, triage, retrieval, approved data tools, workflow rules, answer writer, safety gates, ingestion and evaluation
+- `data/source/` — supplied originals mounted/read-only or referenced without copying over them
+- `data/uploads/` or configured external storage — staged/active immutable upload versions
+- `data/generated/` — predictions/reports, never original files
+- `deploy/` — reverse proxy/TLS examples if useful
+- root `docker-compose.yml`, `.env.example`, `.gitignore`, README and architecture notes.
+Do not move supplied files without a clear need; adapt paths to the actual workspace and preserve originals.
+
+16. README AND DEVELOPER EXPERIENCE
+Write a practical README with:
+- architecture diagram (Mermaid acceptable) and request flow;
+- exact folder structure;
+- prerequisites and external accounts;
+- local installation/run commands for all services;
+- how to create/populate environment files and keep secrets out of Git;
+- Firebase setup for Email/Password and Google, authorized domains, Admin SDK setup, safe Manager bootstrap;
+- Groq API setup and reminder to replace the dummy model ID;
+- how to choose/configure an embedding provider/model and verify Pinecone dimension;
+- Pinecone index creation, ingestion and re-ingestion;
+- CSV upload validation/activation/rollback workflow;
+- Docker Compose local run and VPS HTTPS/firewall deployment;
+- test, lint, build, ingestion and evaluation commands;
+- API documentation links and example request/response;
+- troubleshooting missing keys, Firebase auth/domain errors, Pinecone dimension mismatch, Groq limits, MongoDB/health-check errors and invalid CSV uploads;
+- implemented features, known limitations and integrations not connected;
+- a short honest hackathon demo script using the actual source data.
+
+17. IMPLEMENTATION ORDER — EXECUTE ALL PHASES
+Phase 1: Inspect repo and all required source files; write down actual business rules and real schemas.
+Phase 2: Implement core contracts, environment config and minimal service health endpoints.
+Phase 3: Implement Firebase sign-in and server-side auth/role enforcement.
+Phase 4: Implement a working incident path: pre-safety → triage → RAG/CSV tools as needed → deterministic workflow rules → answer writer → final safety/citation validation → save case.
+Phase 5: Implement Next.js pages: landing, auth, dashboard, New Incident chat/query, Knowledge Base, Analytics, Escalations, History, and Manager-only CSV Data Update.
+Phase 6: Complete immutable CSV upload/versioning, validation preview, activate/rollback, audit trail and manager-only APIs.
+Phase 7: Implement Pinecone ingestion and configurable embedding provider; enforce dimension/model consistency.
+Phase 8: Complete evaluation scripts, tests, Docker configuration, README and VPS instructions.
+Phase 9: Run available checks, fix failures and inspect diffs/secrets/source integrity. Continue rather than stopping after the first working page.
+Phase 10: Provide a factual final report.
+
+18. ACCEPTANCE CRITERIA
+Verify as far as environment access allows that:
+- Next.js JavaScript production build succeeds, and the UI works on mobile/desktop.
+- Express and FastAPI start, validate configuration and expose health/readiness endpoints.
+- Firebase Email/Password and Google sign-in are wired; server verifies tokens and backend roles.
+- Employee cannot access CSV update, activation, rollback or other manager-only API endpoints; Manager can.
+- User cannot self-assign Manager privileges.
+- New Incident calls real backend/AI services and renders grounded output or an honest service-unavailable state.
+- Triage and answer writing are distinct LLM roles; retrieval, approved CSV tools, workflow decisions, and safety gates are separate, validated stages.
+- Retrieval returns real source filenames/sections and citations are validated.
+- Pinecone dimension is checked against the configured embedding model; same model is used for ingest/query.
+- Actual source documents can be ingested repeatably without duplicate/stale active chunks.
+- CSV analytics use actual columns and values and can identify the active version.
+- CSV update supports validation, preview, explicit activation, version history and rollback without modifying supplied originals.
+- Incidents/cases persist to MongoDB and history/escation status is role-protected.
+- Evaluation output matches the supplied output schema; metrics are actually measured.
+- Tests/build/Docker validation results are documented accurately.
+- No secrets were committed, no original data was overwritten, and no unverified success is claimed.
+
+19. FINAL REPORT REQUIRED FROM CODEX
+When finished, summarize:
+1. Features implemented and how to use them.
+2. Architecture and key files.
+3. Exact commands run and observed results for tests, lint, build, Docker config, ingestion and evaluation.
+4. Actual evaluation metrics, number of cases, and limitations; never invent results.
+5. Exact environment variables the user still needs to fill in, especially Groq model ID and embedding provider/model.
+6. Manual external setup still required (Firebase, Groq, chosen embedding provider, Pinecone, MongoDB, domain/TLS/VPS).
+7. Known limitations, unconnected external integrations and security caveats.
+8. Demo script using real supplied cases/data.
+9. Confirm source files remained unchanged and secrets absent only if verified.
+
+BEGIN NOW. Inspect the workspace and actual source files, then implement the product end-to-end. Do not respond with only a plan. If external credentials are missing, complete all work that can be honestly implemented and tested without them, and clearly identify the remaining live verification steps.

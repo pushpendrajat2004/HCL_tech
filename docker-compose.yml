@@ -1,0 +1,141 @@
+name: punjab-sports-mart
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: '10m'
+    max-file: '3'
+services:
+  proxy:
+    image: caddy:2-alpine
+    ports: ['80:80', '443:443', '443:443/udp']
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [edge]
+    depends_on:
+      web: {condition: service_healthy}
+      api: {condition: service_healthy}
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 256m
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      args:
+        NEXT_PUBLIC_FIREBASE_API_KEY: ${NEXT_PUBLIC_FIREBASE_API_KEY}
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${NEXT_PUBLIC_FIREBASE_PROJECT_ID}
+        NEXT_PUBLIC_FIREBASE_APP_ID: ${NEXT_PUBLIC_FIREBASE_APP_ID}
+        NEXT_PUBLIC_API_URL: /api/v1
+    networks: [edge]
+    healthcheck:
+      test: ['CMD','node','-e','fetch("http://127.0.0.1:3000").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))']
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 512m
+  api:
+    build: {context: ., dockerfile: api/Dockerfile}
+    environment:
+      NODE_ENV: production
+      API_PORT: 4000
+      MONGODB_URI: mongodb://psm:${MONGO_APP_PASSWORD:?Set MONGO_APP_PASSWORD}@mongo:27017/psm?authSource=psm
+      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT}
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/firebase_admin
+      INTERNAL_SERVICE_SECRET: ${INTERNAL_SERVICE_SECRET:?Set INTERNAL_SERVICE_SECRET}
+      PYTHON_URL: http://ai:8000
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?Set ALLOWED_ORIGINS}
+      TRUST_PROXY_HOPS: 1
+      REQUEST_TIMEOUT_MS: 180000
+      UPLOAD_MAX_BYTES: 5242880
+    secrets: [firebase_admin]
+    networks: [edge, private, outbound]
+    depends_on:
+      mongo: {condition: service_healthy}
+      ai: {condition: service_healthy}
+    healthcheck:
+      test: ['CMD','node','-e','fetch("http://127.0.0.1:4000/ready").then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))']
+      interval: 30s
+      timeout: 10s
+      start_period: 45s
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 512m
+  ai:
+    build: {context: ., dockerfile: ai-service/Dockerfile}
+    environment:
+      INTERNAL_SERVICE_SECRET: ${INTERNAL_SERVICE_SECRET}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-}
+      EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-}
+      EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-}
+      PINECONE_API_KEY: ${PINECONE_API_KEY:-}
+      PINECONE_INDEX: ${PINECONE_INDEX:-}
+      PINECONE_DIMENSION: ${PINECONE_DIMENSION:-}
+      PINECONE_CLOUD: ${PINECONE_CLOUD:-aws}
+      PINECONE_REGION: ${PINECONE_REGION:-}
+      PINECONE_METRIC: ${PINECONE_METRIC:-cosine}
+      SOURCE_DATA_DIR: /app/data/source
+      KNOWLEDGE_BASE_DIR: /app/knowledge_base
+      UPLOAD_ROOT: /app/data/uploads
+      GENERATED_DIR: /app/data/generated
+      UPLOAD_MAX_BYTES: 5242880
+      UPLOAD_MAX_ROWS: 50000
+      UPLOAD_TOTAL_BYTES: ${UPLOAD_TOTAL_BYTES:-1073741824}
+      AI_TIMEOUT_SECONDS: 20
+      AI_RETRIES: 1
+      RETRIEVAL_TOP_K: ${RETRIEVAL_TOP_K:-6}
+      RETRIEVAL_MIN_SCORE: ${RETRIEVAL_MIN_SCORE:-}
+    volumes:
+      - ./data:/app/data/source:ro
+      - ./knowledge_base:/app/knowledge_base:ro
+      - uploads:/app/data/uploads
+      - generated:/app/data/generated
+    networks: [private, outbound]
+    healthcheck:
+      test: ['CMD','python','-c','import urllib.request; urllib.request.urlopen("http://127.0.0.1:8000/health",timeout=3)']
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 768m
+  mongo:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+      - ./deploy/mongo-init.js:/docker-entrypoint-initdb.d/app.js:ro
+    networks: [private]
+    healthcheck:
+      test: ['CMD-SHELL','mongosh --quiet --eval "quit(db.adminCommand({ping:1}).ok ? 0 : 1)"']
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+    restart: unless-stopped
+    logging: *logging
+    mem_limit: 1g
+networks:
+  edge: {}
+  private: {internal: true}
+  outbound: {}
+volumes:
+  mongo_data: {}
+  uploads: {}
+  generated: {}
+  caddy_data: {}
+  caddy_config: {}
+secrets:
+  firebase_admin:
+    file: ${FIREBASE_ADMIN_FILE:-./secrets/firebase-admin.json}

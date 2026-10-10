@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+work/
+data/generated/
+data/uploads/
+__pycache__/
+.pytest_cache/
+*.pyc
+*service-account*.json
+secrets/

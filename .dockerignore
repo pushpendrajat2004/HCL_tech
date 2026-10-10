@@ -1,0 +1,13 @@
+**/node_modules
+**/.next
+**/__pycache__
+**/.pytest_cache
+**/.env
+**/.env.*
+work
+data/uploads
+data/generated
+.git
+secrets
+Student_Printable_Guide.pdf
+Student_Printable_Guide.html

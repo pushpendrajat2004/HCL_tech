@@ -1,0 +1,15 @@
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import { initializeApp, applicationDefault } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { Profile, Audit, initializeModels } from './models.js';
+dotenv.config({path:'../.env',quiet:true});
+const uid=process.argv[2];
+if(!uid || uid.length>128) throw new Error('Usage: npm run bootstrap-manager -- FIREBASE_UID');
+initializeApp({credential:applicationDefault(),projectId:process.env.GOOGLE_CLOUD_PROJECT});
+await getAuth().getUser(uid);
+await mongoose.connect(process.env.MONGODB_URI);
+await initializeModels();
+await Profile.findOneAndUpdate({uid},{$set:{role:'Manager'}},{upsert:true,new:true,runValidators:true});
+await Audit.create({uid,action:'trusted_cli_manager_bootstrap',outcome:'ok'});
+await mongoose.disconnect(); console.log('Manager role assigned to the verified Firebase UID.');

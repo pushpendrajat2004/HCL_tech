@@ -1,0 +1,21 @@
+{
+  "data/inventory.csv": "35ab1ae79966adabde522a24fdad2bf7b2c23902ad407d988770a14abddc5659",
+  "Student_Printable_Guide.pdf": "443b8fcefaf02d6a0456cc409c6ff64bda13b7674054368199532d4ee3f67c1d",
+  "evaluation/predictions_schema.csv": "7a066eb9381fdb61a27c3644163821a0e0ebc084d1f491e138c101bebe0ee203",
+  "data/employee_master.csv": "8ddf6980dcd23585b52b19174b656c258e52da9e4b0a02d0cb15b50f60f08b0d",
+  "data/store_master.csv": "6651d2ecf6daea67cd0e7494f07b1d90778da7a79374d2b0f2ab438b8d593171",
+  "knowledge_base/01_retail_operations_sop.md": "3a10a4e47658f997ae35c705d72ce063b8ccd32d9945cf61d2ed206f79c20b2c",
+  "knowledge_base/05_responsible_ai_policy.md": "7c1ddedaed5c6b659e04c9457993e345432c2179adcd3a4913348df79d76d1ff",
+  "Student_Printable_Guide.html": "2efeea0723954adc2adbeb1b2c565474d6b503d5b175ed50ae8fcedc6e917242",
+  "data/support_cases.csv": "cd95965849d120766e083665a014559974e2557cc04e57ce3ff870f052c8e092",
+  "data/receipts.csv": "8e2f08397559b43b4d5bd5c0f276ac58856825f367adc6dac548882bbb4aa50b",
+  "data/vendor_master.csv": "64231ff27906267b42dd57e5bd7865acc9e7d1e86fe7b8d14f7e5eab5bedc68c",
+  "data/returns_quality.csv": "96c30a3f520f64a9eee04e3ed006c91dcea94fe3b5ceb8d4bfa251547c5652cd",
+  "knowledge_base/03_inventory_replenishment_policy.md": "79847c9df282a9827347b8cc3f38f3d93c145c4d535b72459de8c05c64b3c10e",
+  "data/escalation_matrix.csv": "261e1e5561ae831860c58056f0e6c254eb3eeb40243208beb3cfa711fa4a3d23",
+  "evaluation/public_test_cases.csv": "2ae3a2a37df7285de2968644eefba0473016354754dab991fded3ebf4416e7e1",
+  "knowledge_base/02_pos_pricing_returns_policy.md": "80a8fc131bf98f5744ede6c01b1f31ea49c913ff9fd4b96340a9597f2179f6ba",
+  "Participant_Guide.md": "b0109716f59498471a64bc6ee1a74660ef6bda2b85c0fc9a3fce4fe4b7de8921",
+  "knowledge_base/04_vendor_quality_policy.md": "3f0eb59818d8c5b1745d6ce357e3dce5fb7f75f5cdc4add72ced52925de87ca1",
+  "data/product_master.csv": "fde3fc101bf4dbe660a6c4fdc7ed101ca44adfecdde70ec96ac000dbfd305537"
+}

@@ -1,0 +1,607 @@
+{
+  "employee_master": {
+    "rows": 100,
+    "columns": {
+      "employee_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 100
+      },
+      "employee_name": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 100
+      },
+      "role": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 8,
+        "values": [
+          "Cashier",
+          "Customer Service",
+          "Inventory Associate",
+          "POS Support",
+          "Product Quality Lead",
+          "Regional Manager",
+          "Store Manager",
+          "Supply Chain Analyst"
+        ]
+      },
+      "store_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 7
+      },
+      "escalation_level": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 4
+      }
+    },
+    "sha256": "8ddf6980dcd23585b52b19174b656c258e52da9e4b0a02d0cb15b50f60f08b0d"
+  },
+  "escalation_matrix": {
+    "rows": 15,
+    "columns": {
+      "category": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 8,
+        "values": [
+          "Customer Service",
+          "Inventory and Replenishment",
+          "Other or Security",
+          "POS and Payments",
+          "Pricing and Promotions",
+          "Product Quality and Safety",
+          "Returns and Refunds",
+          "Vendor and Supply Chain"
+        ]
+      },
+      "trigger": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 15
+      },
+      "priority": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 4
+      },
+      "team": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 11
+      },
+      "channel": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 13
+      },
+      "sla_minutes": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 5
+      },
+      "human_approval_required": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 2,
+        "values": [
+          "No",
+          "Yes"
+        ]
+      },
+      "policy_source": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 13
+      }
+    },
+    "sha256": "261e1e5561ae831860c58056f0e6c254eb3eeb40243208beb3cfa711fa4a3d23"
+  },
+  "inventory": {
+    "rows": 1250,
+    "columns": {
+      "store_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 50
+      },
+      "sku": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 520
+      },
+      "on_hand": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 98
+      },
+      "system_qty": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 101
+      },
+      "reorder_point": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 37
+      },
+      "last_count_date": {
+        "type": "date",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 10
+      },
+      "shelf_capacity": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 46
+      }
+    },
+    "sha256": "35ab1ae79966adabde522a24fdad2bf7b2c23902ad407d988770a14abddc5659"
+  },
+  "product_master": {
+    "rows": 520,
+    "columns": {
+      "sku": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 520
+      },
+      "name": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 520
+      },
+      "category": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 9,
+        "values": [
+          "Badminton",
+          "Cricket",
+          "Fitness",
+          "Fitness Equipment",
+          "Football",
+          "Hockey",
+          "Protective Gear",
+          "Retail Footwear",
+          "Tennis"
+        ]
+      },
+      "vendor_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 10
+      },
+      "list_price": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 515
+      },
+      "shelf_life_days": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 1
+      },
+      "storage_type": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 1,
+        "values": [
+          "Ambient"
+        ]
+      },
+      "high_demand": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 2,
+        "values": [
+          "No",
+          "Yes"
+        ]
+      },
+      "warranty_days": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 5
+      }
+    },
+    "sha256": "fde3fc101bf4dbe660a6c4fdc7ed101ca44adfecdde70ec96ac000dbfd305537"
+  },
+  "receipts": {
+    "rows": 310,
+    "columns": {
+      "receipt_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 310
+      },
+      "store_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 50
+      },
+      "sku": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 47
+      },
+      "vendor_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 9
+      },
+      "po_qty": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 136
+      },
+      "received_qty": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 105
+      },
+      "receipt_date": {
+        "type": "date",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 35
+      },
+      "quality_check_ok": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 2,
+        "values": [
+          "No",
+          "Yes"
+        ]
+      },
+      "damage_notes": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 8
+      }
+    },
+    "sha256": "8e2f08397559b43b4d5bd5c0f276ac58856825f367adc6dac548882bbb4aa50b"
+  },
+  "returns_quality": {
+    "rows": 160,
+    "columns": {
+      "return_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 160
+      },
+      "created_ts": {
+        "type": "datetime",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 160
+      },
+      "store_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 10
+      },
+      "sku": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 154
+      },
+      "reason": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 12
+      },
+      "refund_amount_inr": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 155
+      },
+      "receipt_present": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 2,
+        "values": [
+          "No",
+          "Yes"
+        ]
+      },
+      "status": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 2,
+        "values": [
+          "Closed",
+          "Open"
+        ]
+      },
+      "notes": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 9
+      }
+    },
+    "sha256": "96c30a3f520f64a9eee04e3ed006c91dcea94fe3b5ceb8d4bfa251547c5652cd"
+  },
+  "store_master": {
+    "rows": 50,
+    "columns": {
+      "store_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 50
+      },
+      "store_name": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 50
+      },
+      "city": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 16
+      },
+      "region": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 6,
+        "values": [
+          "Haryana",
+          "Himachal",
+          "NCR",
+          "North",
+          "Punjab",
+          "Rajasthan"
+        ]
+      },
+      "pos_registers": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 10
+      },
+      "avg_daily_traffic": {
+        "type": "integer",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 50
+      },
+      "nearby_store_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 8
+      }
+    },
+    "sha256": "6651d2ecf6daea67cd0e7494f07b1d90778da7a79374d2b0f2ab438b8d593171"
+  },
+  "support_cases": {
+    "rows": 550,
+    "columns": {
+      "case_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 550
+      },
+      "created_ts": {
+        "type": "datetime",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 210
+      },
+      "store_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 49
+      },
+      "employee_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 44
+      },
+      "role": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 9,
+        "values": [
+          "Cashier",
+          "Customer Service",
+          "Inventory Associate",
+          "POS Support",
+          "Product Quality Lead",
+          "Regional Manager",
+          "Store Manager",
+          "Supply Chain Analyst",
+          "Unknown"
+        ]
+      },
+      "issue_text": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 433
+      },
+      "sku": {
+        "type": "text",
+        "nullable": true,
+        "missing": 73,
+        "distinct": 457
+      },
+      "category_label": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 8,
+        "values": [
+          "Customer Service",
+          "Inventory and Replenishment",
+          "Other or Security",
+          "POS and Payments",
+          "Pricing and Promotions",
+          "Product Quality and Safety",
+          "Returns and Refunds",
+          "Vendor and Supply Chain"
+        ]
+      },
+      "priority_label": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 4,
+        "values": [
+          "P1",
+          "P2",
+          "P3",
+          "P4"
+        ]
+      },
+      "status": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 3,
+        "values": [
+          "Closed",
+          "In Progress",
+          "Open"
+        ]
+      },
+      "register_id": {
+        "type": "text",
+        "nullable": true,
+        "missing": 475,
+        "distinct": 9
+      },
+      "root_cause_hint": {
+        "type": "text",
+        "nullable": true,
+        "missing": 390,
+        "distinct": 30
+      }
+    },
+    "sha256": "cd95965849d120766e083665a014559974e2557cc04e57ce3ff870f052c8e092"
+  },
+  "vendor_master": {
+    "rows": 15,
+    "columns": {
+      "vendor_id": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 15
+      },
+      "name": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 15
+      },
+      "on_time_rate": {
+        "type": "number",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 14
+      },
+      "fill_rate": {
+        "type": "number",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 15
+      },
+      "effective_from": {
+        "type": "date",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 15
+      },
+      "status": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 2,
+        "values": [
+          "Active",
+          "Watch"
+        ]
+      },
+      "primary_category": {
+        "type": "text",
+        "nullable": false,
+        "missing": 0,
+        "distinct": 13,
+        "values": [
+          "Accessories",
+          "Apparel",
+          "Badminton",
+          "Cricket",
+          "Fitness",
+          "Fitness Equipment",
+          "Football",
+          "Hockey",
+          "Institutional",
+          "Protective Gear",
+          "Retail Footwear",
+          "Team Kits",
+          "Tennis"
+        ]
+      }
+    },
+    "sha256": "64231ff27906267b42dd57e5bd7865acc9e7d1e86fe7b8d14f7e5eab5bedc68c"
+  }
+}

@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import request from 'supertest';
+import {createApp} from '../src/app.js';
+import {scope} from '../src/auth.js';
+const app=createApp({verify:async token=>{if(['expired','invalid'].includes(token))throw Error();return {uid:token,role:'Manager'};},profile:async uid=>({role:uid==='manager'?'Manager':'Employee'}),callPython:async(path)=>path==='/v1/datasets'?[]:{path},models:{Audit:{create:async()=>({})}}});
+test('unauthenticated protected routes are denied',async()=>{for(const path of ['/me','incidents','datasets'].map(p=>p.startsWith('/')?p:'/'+p)){assert.equal((await request(app).get('/api/v1'+path)).status,401);}});
+test('invalid and expired tokens denied',async()=>{for(const token of ['invalid','expired'])assert.equal((await request(app).get('/api/v1/me').auth(token,{type:'bearer'})).status,401);});
+test('token role cannot self-promote; backend role wins',async()=>{const r=await request(app).get('/api/v1/me').auth('employee',{type:'bearer'});assert.equal(r.body.role,'Employee');assert.equal((await request(app).post('/api/v1/me').auth('employee',{type:'bearer'}).send({role:'Manager'})).status,404);});
+test('employee denied all manager data actions',async()=>{for(const action of ['stage','activate','rollback']){assert.equal((await request(app).post('/api/v1/datasets/inventory/'+action).auth('employee',{type:'bearer'}).send({})).status,403);}assert.equal((await request(app).get('/api/v1/datasets/inventory').auth('employee',{type:'bearer'})).status,403);});
+test('employee cannot change status',async()=>{assert.equal((await request(app).patch('/api/v1/incidents/0123456789abcdef01234567').auth('employee',{type:'bearer'}).send({status:'Closed'})).status,403);});
+test('manager can list datasets',async()=>{const r=await request(app).get('/api/v1/datasets').auth('manager',{type:'bearer'});assert.equal(r.status,200);assert.deepEqual(r.body,[]);});
+test('manager invalid activation and malicious paths rejected',async()=>{for(const body of [{version:'../../secret',confirm:true,expected_revision:0},{version:'original',confirm:false,expected_revision:0},{version:'original',confirm:true,expected_revision:0,role:'Manager'}])assert.equal((await request(app).post('/api/v1/datasets/inventory/activate').auth('manager',{type:'bearer'}).send(body)).status,422);assert.equal((await request(app).get('/api/v1/datasets/secrets').auth('manager',{type:'bearer'})).status,422);});
+test('case scopes use server identity',()=>{assert.deepEqual(scope({uid:'e',role:'Employee'}),{ownerUid:'e'});assert.deepEqual(scope({uid:'m',role:'Manager'}),{});});
+test('arbitrary tools and extra fields denied',async()=>{assert.equal((await request(app).post('/api/v1/analytics').auth('employee',{type:'bearer'}).send({tool:'eval',code:'print(1)'})).status,422);});
